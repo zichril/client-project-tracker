@@ -23,7 +23,7 @@ A fullstack Client Project Tracker built for the Koda Fullstack Developer Assess
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd koda-task-management-app
+cd client-project-tracker
 
 # Start all containers
 docker compose up --build -d
