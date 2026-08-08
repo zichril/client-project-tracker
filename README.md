@@ -2,6 +2,8 @@
 
 A fullstack Client Project Tracker built for the Koda Fullstack Developer Assessment.
 
+See [TECHNICAL_REFLECTION.md](./TECHNICAL_REFLECTION.md) for the technical reflection (why this approach, tradeoffs, hardest part, AI tool disclosure).
+
 ## Technology Choices
 
 | Layer | Technology | Why |
@@ -62,4 +64,4 @@ docker compose exec php php artisan test
 - Authentication is required for all project operations (no public read access)
 - `start_date` and `due_date` are optional; if both are provided, `due_date` must be ≥ `start_date`
 - The Kanban board drag-and-drop updates only the `status` field
-- Deployment is not included (see Technical Reflection for what I'd add)
+- Deployment is not included (see [TECHNICAL_REFLECTION.md](./TECHNICAL_REFLECTION.md) for what I'd add)
