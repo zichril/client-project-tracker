@@ -8,12 +8,9 @@
     <VueDraggable
       v-model="items"
       group="projects"
-      item-key="id"
       @add="onAdd"
     >
-      <template #item="{ element }">
-        <ProjectCard :project="element" />
-      </template>
+      <ProjectCard v-for="element in items" :key="element.id" :project="element" />
     </VueDraggable>
 
     <p v-if="items.length === 0" class="text-center text-muted small py-4 mb-0">No projects</p>
