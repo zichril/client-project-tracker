@@ -17,6 +17,7 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - ./backend:/var/www/html
+    command: sh -c "[ -f .env ] || cp .env.example .env; composer install && php-fpm"
     depends_on:
       mysql:
         condition: service_healthy
