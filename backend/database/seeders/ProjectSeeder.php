@@ -1,0 +1,43 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+
+class ProjectSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $user = User::where('email', 'demo@example.com')->firstOrFail();
+
+        $projects = [
+            ['clientName' => 'Acme Corporation',    'projectName' => 'Corporate Website Redesign',    'description' => "Redesign and modernize the company's corporate website.", 'status' => 'In Progress', 'priority' => 'High',   'startDate' => '2026-06-01', 'dueDate' => '2026-07-15'],
+            ['clientName' => 'GreenLeaf Cafe',       'projectName' => 'Online Ordering System',         'description' => 'Develop an online ordering platform for customers.',           'status' => 'Planning',    'priority' => 'Medium', 'startDate' => '2026-06-10', 'dueDate' => '2026-08-01'],
+            ['clientName' => 'Bright Realty',        'projectName' => 'Property Listing Portal',        'description' => 'Build a portal for managing property listings.',                'status' => 'On Hold',     'priority' => 'Medium', 'startDate' => '2026-05-15', 'dueDate' => '2026-07-30'],
+            ['clientName' => 'Nova Fitness',         'projectName' => 'Mobile App MVP',                 'description' => 'Develop the first version of the fitness tracking app.',       'status' => 'In Progress', 'priority' => 'High',   'startDate' => '2026-06-05', 'dueDate' => '2026-08-20'],
+            ['clientName' => 'Blue Ocean Travel',    'projectName' => 'Booking Platform Enhancement',   'description' => 'Improve search and booking functionalities.',                  'status' => 'Completed',   'priority' => 'Medium', 'startDate' => '2026-04-01', 'dueDate' => '2026-05-30'],
+            ['clientName' => 'TechVision Solutions', 'projectName' => 'CRM Dashboard',                  'description' => 'Develop an internal CRM dashboard.',                          'status' => 'Planning',    'priority' => 'High',   'startDate' => '2026-06-15', 'dueDate' => '2026-08-15'],
+            ['clientName' => 'Urban Living',         'projectName' => 'Property Management System',     'description' => 'Create a platform for managing rental properties.',            'status' => 'In Progress', 'priority' => 'Medium', 'startDate' => '2026-05-20', 'dueDate' => '2026-08-10'],
+            ['clientName' => 'Elite Events',         'projectName' => 'Event Registration Portal',      'description' => 'Develop a registration and ticketing portal.',                 'status' => 'Planning',    'priority' => 'Low',    'startDate' => '2026-06-20', 'dueDate' => '2026-09-01'],
+            ['clientName' => 'HealthFirst Clinic',   'projectName' => 'Patient Appointment System',     'description' => 'Build an appointment scheduling application.',                 'status' => 'Completed',   'priority' => 'High',   'startDate' => '2026-03-01', 'dueDate' => '2026-05-01'],
+            ['clientName' => 'MarketPro',            'projectName' => 'Marketing Campaign Dashboard',   'description' => 'Track and manage digital marketing campaigns.',                'status' => 'In Progress', 'priority' => 'Medium', 'startDate' => '2026-06-01', 'dueDate' => '2026-07-31'],
+            ['clientName' => 'Sunrise Education',    'projectName' => 'Learning Management Portal',     'description' => 'Develop a portal for students and instructors.',               'status' => 'Planning',    'priority' => 'High',   'startDate' => '2026-07-01', 'dueDate' => '2026-09-30'],
+            ['clientName' => 'FreshFarm',            'projectName' => 'Inventory Management System',    'description' => 'Track inventory across multiple locations.',                   'status' => 'On Hold',     'priority' => 'Low',    'startDate' => '2026-05-01', 'dueDate' => '2026-08-01'],
+        ];
+
+        foreach ($projects as $p) {
+            Project::create([
+                'user_id'      => $user->id,
+                'client_name'  => $p['clientName'],
+                'project_name' => $p['projectName'],
+                'description'  => $p['description'],
+                'status'       => $p['status'],
+                'priority'     => $p['priority'],
+                'start_date'   => $p['startDate'],
+                'due_date'     => $p['dueDate'],
+            ]);
+        }
+    }
+}
