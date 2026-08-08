@@ -269,11 +269,11 @@ Must cover:
 
 To be written at the end of implementation. Answers to include in README or a separate `TECHNICAL_REFLECTION.md`:
 
-1. **Why this approach?** Laravel's opinionated structure (Eloquent, Form Requests, API Resources) enforces clean architecture with minimal boilerplate. Vue 3 + Pinia is a natural fit for a reactive SPA. Docker ensures the evaluator can run it in one command.
-2. **Tradeoffs?** Separate SPA + API adds complexity vs. Inertia.js, but gives cleaner REST API surface as required. Sanctum token auth (not cookie/session) simplifies the SPA integration. Skipped deployment to focus on code quality.
-3. **What to improve?** Add deployment (Docker Hub + CI), project detail page, real-time updates via WebSockets, pagination for large project lists, role-based access (admin vs. viewer).
-4. **Hardest part?** (fill in honestly after implementation)
-5. **AI tools?** Claude Code (claude.ai/code) used for brainstorming, design spec, and implementation planning. All code reviewed and understood before committing.
+1. **Why this approach?** Laravel handles validation, response formatting, and database access cleanly out of the box. Vue 3 with Pinia is a natural fit for a reactive SPA. Docker ensures the evaluator can run the whole stack with one command.
+2. **Tradeoffs?** Token auth is simpler for a pure SPA but tokens in `localStorage` carry XSS risk — would switch to `httpOnly` cookie-based Sanctum in production. Server-side filtering scales better than client-side but fires a request on every filter change. Deployment skipped in favour of code quality.
+3. **What to improve?** Add pagination (currently returns all records), debounce the search input to reduce API calls, add a project detail page with full description.
+4. **Hardest part?** The Kanban drag-and-drop optimistic update — storing the previous status, catching API errors, reverting the value, and showing a toast all had to happen in the right order to keep the UI in sync with the database.
+5. **AI tools?** Claude Code (claude.ai/code) was used for brainstorming the architecture, writing the design spec and implementation plan, and generating boilerplate. All output was reviewed and understood before committing.
 
 ### Deployment (optional bonus — skipped)
 
