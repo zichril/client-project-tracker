@@ -252,3 +252,29 @@ Toast notifications use `vue-toastification`.
 ## 8. Seed Data
 
 Source: `fullstack-developer-assessment/test_data.json` — 12 projects across all 4 statuses and all 3 priority levels. Used to demonstrate the Kanban board with populated columns from first run.
+
+---
+
+## 9. Submission Deliverables
+
+### README.md (required — Documentation 10%)
+
+Must cover:
+- **Setup instructions**: prerequisites (Docker + Docker Compose), one-command startup (`docker compose up --build`)
+- **Technology choices**: why Laravel, Vue 3, MySQL, Docker
+- **How to run**: `docker compose up --build`, seed command, default credentials (`demo@example.com` / `password`), URLs (`http://localhost`)
+- **Assumptions made**: projects are user-scoped (auth required), no multi-tenancy, dates are optional, seeder pre-loads test data
+
+### Technical Reflection (required — Communication 5%)
+
+To be written at the end of implementation. Answers to include in README or a separate `TECHNICAL_REFLECTION.md`:
+
+1. **Why this approach?** Laravel's opinionated structure (Eloquent, Form Requests, API Resources) enforces clean architecture with minimal boilerplate. Vue 3 + Pinia is a natural fit for a reactive SPA. Docker ensures the evaluator can run it in one command.
+2. **Tradeoffs?** Separate SPA + API adds complexity vs. Inertia.js, but gives cleaner REST API surface as required. Sanctum token auth (not cookie/session) simplifies the SPA integration. Skipped deployment to focus on code quality.
+3. **What to improve?** Add deployment (Docker Hub + CI), project detail page, real-time updates via WebSockets, pagination for large project lists, role-based access (admin vs. viewer).
+4. **Hardest part?** (fill in honestly after implementation)
+5. **AI tools?** Claude Code (claude.ai/code) used for brainstorming, design spec, and implementation planning. All code reviewed and understood before committing.
+
+### Deployment (optional bonus — skipped)
+
+Not implemented. Would add: multi-stage Dockerfile (build Vue bundle into nginx image), GitHub Actions CI/CD pipeline, deployment to Railway or Fly.io.
