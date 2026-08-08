@@ -6,7 +6,7 @@
 
 **Architecture:** Four Docker containers (nginx, php-fpm, vite, mysql) behind a single `http://localhost` origin. nginx reverse-proxies `/api/*` to php-fpm via FastCGI and proxies `/` to the Vite dev server, making CORS a non-issue. Laravel handles REST API + Sanctum token auth; Vue 3 SPA consumes the API with Pinia state, Vue Router, and Axios.
 
-**Tech Stack:** Laravel 11 · PHP 8.3-fpm · Vue 3 + Vite · Pinia · Vue Router · Axios · Tailwind CSS v4 (`@tailwindcss/vite`) · vue-draggable-plus · vue-toastification · MySQL 8 · PHPUnit feature tests
+**Tech Stack:** Laravel 11 · PHP 8.3-fpm · Vue 3 + Vite · Pinia · Vue Router · Axios · Bootstrap 5 · vue-draggable-plus · vue-toastification · MySQL 8 · PHPUnit feature tests
 
 ## Global Constraints
 
@@ -1336,8 +1336,7 @@ npm create vite@latest frontend -- --template vue
 ```bash
 cd frontend
 npm install
-npm install vue-router@4 pinia axios vue-toastification vue-draggable-plus
-npm install -D @tailwindcss/vite tailwindcss
+npm install vue-router@4 pinia axios vue-toastification vue-draggable-plus bootstrap @popperjs/core
 cd ..
 ```
 
@@ -1346,11 +1345,10 @@ cd ..
 ```js
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue()],
   resolve: {
     alias: { '@': resolve(__dirname, 'src') },
   },
@@ -1362,13 +1360,9 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 4: Replace `frontend/src/style.css`**
+- [ ] **Step 4: Delete scaffold clutter**
 
-```css
-@import "tailwindcss";
-```
-
-Delete `frontend/src/assets/vue.svg` and `frontend/public/vite.svg` (they're scaffold clutter).
+Delete `frontend/src/assets/vue.svg` and `frontend/public/vite.svg`. Delete `frontend/src/style.css` — Bootstrap is imported in `main.js` instead.
 
 - [ ] **Step 5: Write `frontend/src/api/axios.js`**
 
@@ -1493,7 +1487,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
-import './style.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import App from './App.vue'
 import router from './router'
 
@@ -1508,48 +1503,37 @@ app.mount('#app')
 
 ```vue
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full max-w-md">
-      <h1 class="text-2xl font-bold text-gray-800 mb-6">Sign In</h1>
+  <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="card shadow-sm border-0" style="width: 100%; max-width: 420px;">
+      <div class="card-body p-4">
+        <h1 class="h4 fw-bold mb-4">Sign In</h1>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input
-            v-model="form.email"
-            type="email"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            :class="{ 'border-red-400': errors.email }"
-          />
-          <p v-if="errors.email" class="text-red-500 text-xs mt-1">{{ errors.email[0] }}</p>
-        </div>
+        <form @submit.prevent="handleSubmit">
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input v-model="form.email" type="email"
+              class="form-control" :class="{ 'is-invalid': errors.email }" />
+            <div v-if="errors.email" class="invalid-feedback">{{ errors.email[0] }}</div>
+          </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input
-            v-model="form.password"
-            type="password"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input v-model="form.password" type="password" class="form-control" />
+          </div>
 
-        <button
-          type="submit"
-          :disabled="loading"
-          class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:opacity-50"
-        >
-          {{ loading ? 'Signing in...' : 'Sign In' }}
-        </button>
-      </form>
+          <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+            {{ loading ? 'Signing in...' : 'Sign In' }}
+          </button>
+        </form>
 
-      <p class="text-sm text-center text-gray-500 mt-4">
-        No account?
-        <router-link to="/register" class="text-blue-600 hover:underline">Register</router-link>
-      </p>
-
-      <p class="text-xs text-center text-gray-400 mt-2">
-        Demo: demo@example.com / password
-      </p>
+        <p class="text-center text-muted small mt-3 mb-1">
+          No account?
+          <router-link to="/register">Register</router-link>
+        </p>
+        <p class="text-center text-muted" style="font-size: 0.75rem;">
+          Demo: demo@example.com / password
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -1585,51 +1569,48 @@ async function handleSubmit() {
 
 ```vue
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full max-w-md">
-      <h1 class="text-2xl font-bold text-gray-800 mb-6">Create Account</h1>
+  <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="card shadow-sm border-0" style="width: 100%; max-width: 420px;">
+      <div class="card-body p-4">
+        <h1 class="h4 fw-bold mb-4">Create Account</h1>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-          <input v-model="form.name" type="text"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            :class="{ 'border-red-400': errors.name }" />
-          <p v-if="errors.name" class="text-red-500 text-xs mt-1">{{ errors.name[0] }}</p>
-        </div>
+        <form @submit.prevent="handleSubmit">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input v-model="form.name" type="text"
+              class="form-control" :class="{ 'is-invalid': errors.name }" />
+            <div v-if="errors.name" class="invalid-feedback">{{ errors.name[0] }}</div>
+          </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input v-model="form.email" type="email"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            :class="{ 'border-red-400': errors.email }" />
-          <p v-if="errors.email" class="text-red-500 text-xs mt-1">{{ errors.email[0] }}</p>
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input v-model="form.email" type="email"
+              class="form-control" :class="{ 'is-invalid': errors.email }" />
+            <div v-if="errors.email" class="invalid-feedback">{{ errors.email[0] }}</div>
+          </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input v-model="form.password" type="password"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            :class="{ 'border-red-400': errors.password }" />
-          <p v-if="errors.password" class="text-red-500 text-xs mt-1">{{ errors.password[0] }}</p>
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input v-model="form.password" type="password"
+              class="form-control" :class="{ 'is-invalid': errors.password }" />
+            <div v-if="errors.password" class="invalid-feedback">{{ errors.password[0] }}</div>
+          </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-          <input v-model="form.password_confirmation" type="password"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input v-model="form.password_confirmation" type="password" class="form-control" />
+          </div>
 
-        <button type="submit" :disabled="loading"
-          class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:opacity-50">
-          {{ loading ? 'Creating account...' : 'Create Account' }}
-        </button>
-      </form>
+          <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+            {{ loading ? 'Creating account...' : 'Create Account' }}
+          </button>
+        </form>
 
-      <p class="text-sm text-center text-gray-500 mt-4">
-        Have an account?
-        <router-link to="/login" class="text-blue-600 hover:underline">Sign In</router-link>
-      </p>
+        <p class="text-center text-muted small mt-3">
+          Have an account?
+          <router-link to="/login">Sign In</router-link>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -1826,88 +1807,70 @@ git commit -m "feat: add project store and API module"
 
 ```vue
 <template>
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between p-6 border-b border-gray-100">
-        <h2 class="text-lg font-semibold text-gray-800">
-          {{ project ? 'Edit Project' : 'New Project' }}
-        </h2>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+  <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ project ? 'Edit Project' : 'New Project' }}</h5>
+          <button type="button" class="btn-close" @click="$emit('close')"></button>
+        </div>
+
+        <form @submit.prevent="handleSubmit">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Client Name <span class="text-danger">*</span></label>
+                <input v-model="form.client_name" type="text"
+                  class="form-control" :class="{ 'is-invalid': errors.client_name }" />
+                <div v-if="errors.client_name" class="invalid-feedback">{{ errors.client_name[0] }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Project Name <span class="text-danger">*</span></label>
+                <input v-model="form.project_name" type="text"
+                  class="form-control" :class="{ 'is-invalid': errors.project_name }" />
+                <div v-if="errors.project_name" class="invalid-feedback">{{ errors.project_name[0] }}</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea v-model="form.description" class="form-control" rows="3"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Status <span class="text-danger">*</span></label>
+                <select v-model="form.status" class="form-select" :class="{ 'is-invalid': errors.status }">
+                  <option value="">Select status</option>
+                  <option v-for="s in STATUSES" :key="s" :value="s">{{ s }}</option>
+                </select>
+                <div v-if="errors.status" class="invalid-feedback">{{ errors.status[0] }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Priority <span class="text-danger">*</span></label>
+                <select v-model="form.priority" class="form-select" :class="{ 'is-invalid': errors.priority }">
+                  <option value="">Select priority</option>
+                  <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
+                </select>
+                <div v-if="errors.priority" class="invalid-feedback">{{ errors.priority[0] }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Start Date</label>
+                <input v-model="form.start_date" type="date" class="form-control" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Due Date</label>
+                <input v-model="form.due_date" type="date"
+                  class="form-control" :class="{ 'is-invalid': errors.due_date }" />
+                <div v-if="errors.due_date" class="invalid-feedback">{{ errors.due_date[0] }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="$emit('close')">Cancel</button>
+            <button type="submit" class="btn btn-primary" :disabled="loading">
+              {{ loading ? 'Saving...' : 'Save Project' }}
+            </button>
+          </div>
+        </form>
       </div>
-
-      <form @submit.prevent="handleSubmit" class="p-6 space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Client Name <span class="text-red-400">*</span></label>
-            <input v-model="form.client_name" type="text"
-              class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              :class="errors.client_name ? 'border-red-400' : 'border-gray-300'" />
-            <p v-if="errors.client_name" class="text-red-500 text-xs mt-1">{{ errors.client_name[0] }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Project Name <span class="text-red-400">*</span></label>
-            <input v-model="form.project_name" type="text"
-              class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              :class="errors.project_name ? 'border-red-400' : 'border-gray-300'" />
-            <p v-if="errors.project_name" class="text-red-500 text-xs mt-1">{{ errors.project_name[0] }}</p>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea v-model="form.description" rows="3"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-400">*</span></label>
-            <select v-model="form.status"
-              class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              :class="errors.status ? 'border-red-400' : 'border-gray-300'">
-              <option value="">Select status</option>
-              <option v-for="s in STATUSES" :key="s" :value="s">{{ s }}</option>
-            </select>
-            <p v-if="errors.status" class="text-red-500 text-xs mt-1">{{ errors.status[0] }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Priority <span class="text-red-400">*</span></label>
-            <select v-model="form.priority"
-              class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              :class="errors.priority ? 'border-red-400' : 'border-gray-300'">
-              <option value="">Select priority</option>
-              <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
-            </select>
-            <p v-if="errors.priority" class="text-red-500 text-xs mt-1">{{ errors.priority[0] }}</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-            <input v-model="form.start_date" type="date"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-            <input v-model="form.due_date" type="date"
-              class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              :class="errors.due_date ? 'border-red-400' : 'border-gray-300'" />
-            <p v-if="errors.due_date" class="text-red-500 text-xs mt-1">{{ errors.due_date[0] }}</p>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-3 pt-2">
-          <button type="button" @click="$emit('close')"
-            class="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-            Cancel
-          </button>
-          <button type="submit" :disabled="loading"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
-            {{ loading ? 'Saving...' : 'Save Project' }}
-          </button>
-        </div>
-      </form>
     </div>
   </div>
 </template>
@@ -2001,24 +1964,18 @@ git commit -m "feat: add shared project create/edit modal with 422 error handlin
 
 ```vue
 <template>
-  <div
-    :data-id="project.id"
-    class="bg-white rounded-lg border border-gray-200 p-3 shadow-sm cursor-grab active:cursor-grabbing select-none group"
-  >
-    <div class="flex items-start justify-between gap-2 mb-2">
-      <p class="text-sm font-medium text-gray-800 leading-snug">{{ project.projectName }}</p>
-      <span :class="priorityClass" class="text-xs font-medium px-2 py-0.5 rounded-full shrink-0">
-        {{ project.priority }}
-      </span>
-    </div>
-    <p class="text-xs text-gray-500 mb-2">{{ project.clientName }}</p>
-    <p v-if="project.dueDate" class="text-xs text-gray-400">Due {{ project.dueDate }}</p>
-
-    <div class="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-      <button @click.stop="openEditModal(project)"
-        class="text-xs text-blue-600 hover:underline">Edit</button>
-      <button @click.stop="handleDelete"
-        class="text-xs text-red-500 hover:underline">Delete</button>
+  <div :data-id="project.id" class="card mb-2 shadow-sm" style="cursor: grab;">
+    <div class="card-body p-3">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <p class="fw-semibold small mb-0 me-2">{{ project.projectName }}</p>
+        <span :class="priorityBadge" class="badge text-nowrap">{{ project.priority }}</span>
+      </div>
+      <p class="text-muted small mb-1">{{ project.clientName }}</p>
+      <p v-if="project.dueDate" class="text-muted mb-2" style="font-size: 0.72rem;">Due {{ project.dueDate }}</p>
+      <div class="d-flex gap-2">
+        <button @click.stop="openEditModal(project)" class="btn btn-link btn-sm p-0 text-primary">Edit</button>
+        <button @click.stop="handleDelete" class="btn btn-link btn-sm p-0 text-danger">Delete</button>
+      </div>
     </div>
   </div>
 </template>
@@ -2034,10 +1991,10 @@ const store = useProjectStore()
 const toast = useToast()
 const openEditModal = inject('openEditModal')
 
-const priorityClass = computed(() => ({
-  'bg-red-100 text-red-700':    props.project.priority === 'High',
-  'bg-yellow-100 text-yellow-700': props.project.priority === 'Medium',
-  'bg-green-100 text-green-700':  props.project.priority === 'Low',
+const priorityBadge = computed(() => ({
+  'bg-danger':              props.project.priority === 'High',
+  'bg-warning text-dark':   props.project.priority === 'Medium',
+  'bg-success':             props.project.priority === 'Low',
 }))
 
 async function handleDelete() {
@@ -2056,17 +2013,16 @@ async function handleDelete() {
 
 ```vue
 <template>
-  <div class="flex flex-col bg-gray-100 rounded-xl p-3 min-h-64 w-64 shrink-0">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ status }}</h3>
-      <span class="text-xs text-gray-400 font-medium">{{ items.length }}</span>
+  <div class="rounded-3 p-3 flex-shrink-0" style="background: #f1f3f5; min-width: 260px; min-height: 200px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="text-uppercase text-muted fw-semibold mb-0 small">{{ status }}</h6>
+      <span class="badge bg-secondary rounded-pill">{{ items.length }}</span>
     </div>
 
     <VueDraggable
       v-model="items"
       group="projects"
       item-key="id"
-      class="flex flex-col gap-2 flex-1"
       @add="onAdd"
     >
       <template #item="{ element }">
@@ -2074,9 +2030,7 @@ async function handleDelete() {
       </template>
     </VueDraggable>
 
-    <div v-if="items.length === 0" class="text-xs text-gray-400 text-center py-8">
-      No projects
-    </div>
+    <p v-if="items.length === 0" class="text-center text-muted small py-4 mb-0">No projects</p>
   </div>
 </template>
 
@@ -2116,7 +2070,7 @@ async function onAdd(event) {
 
 ```vue
 <template>
-  <div class="flex gap-4 p-6 overflow-x-auto min-h-screen">
+  <div class="d-flex gap-3 p-4 overflow-auto" style="min-height: calc(100vh - 56px);">
     <KanbanColumn
       v-for="status in STATUSES"
       :key="status"
@@ -2176,27 +2130,25 @@ const store = useProjectStore()
 
 ```vue
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <nav v-if="authStore.isAuthenticated"
-      class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
-      <h1 class="text-lg font-semibold text-gray-800">Client Project Tracker</h1>
-      <div class="flex items-center gap-3">
-        <div class="flex rounded-lg overflow-hidden border border-gray-300 text-sm">
-          <button @click="setView('board')"
-            :class="['px-3 py-1.5 font-medium', store.viewMode === 'board' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50']">
-            Board
-          </button>
-          <button @click="setView('table')"
-            :class="['px-3 py-1.5 font-medium', store.viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50']">
-            Table
-          </button>
+  <div>
+    <nav v-if="authStore.isAuthenticated" class="navbar navbar-expand-lg bg-white border-bottom shadow-sm sticky-top">
+      <div class="container-fluid px-4">
+        <span class="navbar-brand fw-semibold">Client Project Tracker</span>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <div class="btn-group btn-group-sm" role="group">
+            <button @click="setView('board')"
+              :class="['btn', store.viewMode === 'board' ? 'btn-primary' : 'btn-outline-secondary']">
+              Board
+            </button>
+            <button @click="setView('table')"
+              :class="['btn', store.viewMode === 'table' ? 'btn-primary' : 'btn-outline-secondary']">
+              Table
+            </button>
+          </div>
+          <button @click="openCreateModal" class="btn btn-primary btn-sm">+ New Project</button>
+          <span class="text-muted small">{{ authStore.user?.name }}</span>
+          <button @click="handleLogout" class="btn btn-link btn-sm text-muted p-0">Logout</button>
         </div>
-        <button @click="openCreateModal"
-          class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700">
-          + New Project
-        </button>
-        <span class="text-sm text-gray-500">{{ authStore.user?.name }}</span>
-        <button @click="handleLogout" class="text-sm text-gray-400 hover:text-gray-600">Logout</button>
       </div>
     </nav>
 
@@ -2281,29 +2233,24 @@ git commit -m "feat: add Kanban board with drag-and-drop status updates"
 
 ```vue
 <template>
-  <div class="flex flex-wrap gap-3 p-4 bg-white border-b border-gray-100">
+  <div class="d-flex flex-wrap gap-2 p-3 bg-white border-bottom">
     <input
       v-model="store.filters.search"
       @input="onFilterChange"
       type="text"
       placeholder="Search projects..."
-      class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-56 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      class="form-control form-control-sm"
+      style="max-width: 220px;"
     />
-
-    <select v-model="store.filters.status" @change="onFilterChange"
-      class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <select v-model="store.filters.status" @change="onFilterChange" class="form-select form-select-sm" style="max-width: 160px;">
       <option value="">All Statuses</option>
       <option v-for="s in STATUSES" :key="s" :value="s">{{ s }}</option>
     </select>
-
-    <select v-model="store.filters.priority" @change="onFilterChange"
-      class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <select v-model="store.filters.priority" @change="onFilterChange" class="form-select form-select-sm" style="max-width: 160px;">
       <option value="">All Priorities</option>
       <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
     </select>
-
-    <button v-if="hasActiveFilters" @click="clearFilters"
-      class="text-sm text-gray-500 hover:text-gray-700 underline">
+    <button v-if="hasActiveFilters" @click="clearFilters" class="btn btn-link btn-sm text-muted p-0">
       Clear filters
     </button>
   </div>
@@ -2337,47 +2284,39 @@ function clearFilters() {
 
 ```vue
 <template>
-  <div class="overflow-x-auto">
-    <table class="w-full text-sm">
-      <thead>
-        <tr class="border-b border-gray-200 bg-gray-50">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
           <th v-for="col in COLUMNS" :key="col.key"
             @click="col.sortable ? toggleSort(col.key) : null"
-            :class="['px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider', col.sortable ? 'cursor-pointer hover:text-gray-800 select-none' : '']">
+            :style="col.sortable ? 'cursor: pointer; user-select: none;' : ''"
+            class="small text-uppercase text-muted fw-semibold">
             {{ col.label }}
             <span v-if="col.sortable && store.filters.sort_by === col.key">
-              {{ store.filters.sort_dir === 'asc' ? ' ↑' : ' ↓' }}
+              {{ store.filters.sort_dir === 'asc' ? '↑' : '↓' }}
             </span>
           </th>
-          <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+          <th class="small text-uppercase text-muted fw-semibold text-end">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="store.loading">
-          <td :colspan="COLUMNS.length + 1" class="px-4 py-8 text-center text-gray-400">Loading...</td>
+          <td :colspan="COLUMNS.length + 1" class="text-center text-muted py-5">Loading...</td>
         </tr>
         <tr v-else-if="store.projects.length === 0">
-          <td :colspan="COLUMNS.length + 1" class="px-4 py-8 text-center text-gray-400">No projects found</td>
+          <td :colspan="COLUMNS.length + 1" class="text-center text-muted py-5">No projects found</td>
         </tr>
-        <tr v-else v-for="project in store.projects" :key="project.id"
-          class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-          <td class="px-4 py-3 font-medium text-gray-800">{{ project.clientName }}</td>
-          <td class="px-4 py-3 text-gray-700">{{ project.projectName }}</td>
-          <td class="px-4 py-3">
-            <span :class="statusClass(project.status)" class="text-xs font-medium px-2 py-0.5 rounded-full">
-              {{ project.status }}
-            </span>
-          </td>
-          <td class="px-4 py-3">
-            <span :class="priorityClass(project.priority)" class="text-xs font-medium px-2 py-0.5 rounded-full">
-              {{ project.priority }}
-            </span>
-          </td>
-          <td class="px-4 py-3 text-gray-500">{{ project.startDate ?? '—' }}</td>
-          <td class="px-4 py-3 text-gray-500">{{ project.dueDate ?? '—' }}</td>
-          <td class="px-4 py-3 text-right">
-            <button @click="openEditModal(project)" class="text-blue-600 hover:underline text-xs mr-3">Edit</button>
-            <button @click="handleDelete(project)" class="text-red-500 hover:underline text-xs">Delete</button>
+        <tr v-else v-for="project in store.projects" :key="project.id">
+          <td class="fw-medium">{{ project.clientName }}</td>
+          <td>{{ project.projectName }}</td>
+          <td><span :class="statusBadge(project.status)" class="badge">{{ project.status }}</span></td>
+          <td><span :class="priorityBadge(project.priority)" class="badge">{{ project.priority }}</span></td>
+          <td class="text-muted small">{{ project.startDate ?? '—' }}</td>
+          <td class="text-muted small">{{ project.dueDate ?? '—' }}</td>
+          <td class="text-end">
+            <button @click="openEditModal(project)" class="btn btn-link btn-sm p-0 me-2">Edit</button>
+            <button @click="handleDelete(project)" class="btn btn-link btn-sm p-0 text-danger">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -2391,12 +2330,12 @@ import { useProjectStore } from '@/stores/projectStore'
 import { useToast } from 'vue-toastification'
 
 const COLUMNS = [
-  { key: 'client_name',  label: 'Client',       sortable: true },
-  { key: 'project_name', label: 'Project',      sortable: true },
-  { key: 'status',       label: 'Status',       sortable: true },
-  { key: 'priority',     label: 'Priority',     sortable: true },
-  { key: 'start_date',   label: 'Start Date',   sortable: true },
-  { key: 'due_date',     label: 'Due Date',     sortable: true },
+  { key: 'client_name',  label: 'Client',     sortable: true },
+  { key: 'project_name', label: 'Project',    sortable: true },
+  { key: 'status',       label: 'Status',     sortable: true },
+  { key: 'priority',     label: 'Priority',   sortable: true },
+  { key: 'start_date',   label: 'Start Date', sortable: true },
+  { key: 'due_date',     label: 'Due Date',   sortable: true },
 ]
 
 const store = useProjectStore()
@@ -2413,21 +2352,21 @@ function toggleSort(key) {
   store.fetchProjects()
 }
 
-function statusClass(s) {
+function statusBadge(s) {
   return {
-    'Planning':    'bg-gray-100 text-gray-700',
-    'In Progress': 'bg-blue-100 text-blue-700',
-    'On Hold':     'bg-orange-100 text-orange-700',
-    'Completed':   'bg-green-100 text-green-700',
-  }[s] ?? 'bg-gray-100 text-gray-700'
+    'Planning':    'bg-secondary',
+    'In Progress': 'bg-primary',
+    'On Hold':     'bg-warning text-dark',
+    'Completed':   'bg-success',
+  }[s] ?? 'bg-secondary'
 }
 
-function priorityClass(p) {
+function priorityBadge(p) {
   return {
-    'High':   'bg-red-100 text-red-700',
-    'Medium': 'bg-yellow-100 text-yellow-700',
-    'Low':    'bg-green-100 text-green-700',
-  }[p] ?? 'bg-gray-100 text-gray-700'
+    'High':   'bg-danger',
+    'Medium': 'bg-warning text-dark',
+    'Low':    'bg-success',
+  }[p] ?? 'bg-secondary'
 }
 
 async function handleDelete(project) {
@@ -2446,7 +2385,7 @@ async function handleDelete(project) {
 
 ```vue
 <template>
-  <div class="flex flex-col">
+  <div>
     <ProjectFilters />
     <ProjectTable />
   </div>
@@ -2507,7 +2446,7 @@ A fullstack Client Project Tracker built for the Koda Fullstack Developer Assess
 | Frontend | Vue 3 + Vite | Composition API, Pinia state management, fast HMR |
 | Database | MySQL 8 | Relational data, enum columns for status/priority, familiar to most teams |
 | Auth | Laravel Sanctum | Lightweight API token auth, no session/cookie complexity for SPA |
-| Styling | Tailwind CSS v4 | Utility-first, no component library dependency |
+| Styling | Bootstrap 5 | Specified in the job description; component-rich, responsive grid |
 | Infrastructure | Docker (nginx + php-fpm + vite + mysql) | One-command setup, mirrors production deployment patterns |
 
 ## Prerequisites

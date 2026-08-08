@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-08  
 **Stack:** Laravel 11 · PHP 8.3 · Vue 3 + Vite · MySQL 8 · Docker  
-**Styling:** Tailwind CSS v4  
+**Styling:** Bootstrap 5  
 **Assessment:** Koda Fullstack Developer Assessment
 
 ---
@@ -241,9 +241,9 @@ Each test class uses `RefreshDatabase` and creates its own user + Sanctum token.
 
 ## 7. Styling
 
-**Tailwind CSS v4** installed in the Vue (Vite) frontend via `@tailwindcss/vite`. No component library — hand-crafted components using Tailwind utility classes. This keeps the bundle small and demonstrates CSS competence.
+**Bootstrap 5** (`bootstrap` + `@popperjs/core`) imported globally in `main.js`. No additional component library — Bootstrap utility classes and components (cards, badges, modals, tables, navbar) are used directly. Bootstrap is specified in the job description.
 
-Priority badges use colour-coded pills: `High` → red, `Medium` → yellow, `Low` → green. Status badges follow the same pattern: `In Progress` → blue, `Planning` → gray, `On Hold` → orange, `Completed` → green.
+Priority badges use Bootstrap `badge` with contextual colours: `High` → `bg-danger`, `Medium` → `bg-warning text-dark`, `Low` → `bg-success`. Status badges: `In Progress` → `bg-primary`, `Planning` → `bg-secondary`, `On Hold` → `bg-warning text-dark`, `Completed` → `bg-success`.
 
 Toast notifications use `vue-toastification`.
 
