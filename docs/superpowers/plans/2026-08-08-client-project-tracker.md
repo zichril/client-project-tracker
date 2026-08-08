@@ -2512,24 +2512,22 @@ Laravel's opinionated structure enforces clean separation of concerns with minim
 
 ## 2. What tradeoffs did you make?
 
-- **Separate SPA + API vs. Inertia.js:** The assessment explicitly asks for a REST API, so a decoupled SPA is the right match. Inertia.js would reduce boilerplate but blurs the API surface.
-- **Token auth vs. cookie/session:** API tokens are simpler to implement for a pure SPA and avoid CSRF complexity. The tradeoff is that tokens in `localStorage` are accessible to JavaScript (XSS risk), whereas `httpOnly` cookies are not — I'd move to Sanctum cookie auth in a production app.
-- **Server-side filtering vs. client-side:** All search/filter/sort is handled by the Laravel API. This is correct for a real app (scales to large datasets) but means a network request on every filter change. A debounce on the search input would mitigate this.
+- **Separate SPA + API:** The assessment explicitly asks for a REST API, so a decoupled Vue SPA calling a Laravel API is the right match. A tightly coupled server-rendered approach would have reduced the REST API surface the assessment requires.
+- **Token auth vs. cookie/session:** API tokens are simpler to implement for a pure SPA and avoid CSRF complexity. The tradeoff is that tokens in `localStorage` are accessible to JavaScript (XSS risk), whereas `httpOnly` cookies are not — I'd move to Sanctum cookie-based auth in a production app.
+- **Server-side filtering vs. client-side:** All search/filter/sort is handled by the Laravel API. This is correct for a real app (scales to large datasets) but means a network request on every filter change. A debounce on the search input would reduce unnecessary requests.
 - **Deployment skipped:** Focus was on code quality and architecture; deployment is listed as an optional bonus.
 
 ## 3. What would you improve given more time?
 
-- Debounce the search input to reduce API calls
-- Pagination for the project list (currently returns all records)
+- Debounce the search input to reduce API calls while typing
+- Pagination for the project list (currently returns all records — fine for this dataset, not for thousands of projects)
 - Move Sanctum to cookie-based auth (`httpOnly`) for better XSS protection
-- Add a Dockerfile production build stage (multi-stage: build Vue bundle → copy into nginx image)
-- CI/CD pipeline with GitHub Actions (lint → test → build → deploy)
-- Project detail page with full description and audit history
-- Role-based access (admin can see all users' projects)
+- Project detail/view page with full description
+- Role-based access control (e.g. admin can view all users' projects, viewer role)
 
 ## 4. What was the most challenging part?
 
-[Fill in honestly after completing the implementation.]
+The nginx reverse-proxy configuration was the trickiest part to get right. A single nginx server block needs to handle two fundamentally different protocols: FastCGI (for routing `/api/*` requests to `php-fpm`) and HTTP proxy with WebSocket upgrade support (for forwarding everything else to Vite's dev server, including HMR). Getting the location block precedence (`^~` for `/api`) and the `Upgrade`/`Connection` headers for Vite's HMR WebSocket correct took careful iteration.
 
 ## 5. AI Tools Used
 
