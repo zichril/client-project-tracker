@@ -996,7 +996,7 @@ class ProjectController extends Controller
     public function store(StoreProjectRequest $request)
     {
         $project = $request->user()->projects()->create($request->validated());
-        return new ProjectResource($project);
+        return (new ProjectResource($project))->response()->setStatusCode(201);
     }
 
     public function update(UpdateProjectRequest $request, int $id)
@@ -1646,7 +1646,7 @@ async function handleSubmit() {
 
 ```vue
 <template>
-  <div class="p-8 text-gray-500">Projects view coming soon</div>
+  <div class="p-4 text-muted">Projects view coming soon</div>
 </template>
 ```
 
@@ -2105,7 +2105,7 @@ Create `frontend/src/views/projects/ProjectTableView.vue` as a stub (replaced fo
 
 ```vue
 <template>
-  <div class="p-8 text-gray-400">Table view coming soon</div>
+  <div class="p-4 text-muted">Table view coming soon</div>
 </template>
 ```
 
@@ -2508,35 +2508,27 @@ docker compose exec php php artisan test
 
 ## 1. Why did you choose this implementation approach?
 
-Laravel's opinionated structure enforces clean separation of concerns with minimal boilerplate: Form Requests handle validation, API Resources ensure consistent JSON shape, and Eloquent scopes make user-data isolation straightforward. Vue 3's Composition API paired with Pinia gives a clean reactive layer without the verbosity of the Options API. Docker with nginx + php-fpm mirrors how Laravel runs in production, rather than using `php artisan serve` which is explicitly a dev-only tool.
+Laravel handles validation, response formatting, and database access cleanly out of the box — less boilerplate means more focus on business logic. Vue 3 with Pinia is a natural fit for a reactive SPA, and Docker ensures the evaluator can run the whole stack with one command without installing PHP or MySQL locally.
 
 ## 2. What tradeoffs did you make?
 
-- **Separate SPA + API:** The assessment explicitly asks for a REST API, so a decoupled Vue SPA calling a Laravel API is the right match. A tightly coupled server-rendered approach would have reduced the REST API surface the assessment requires.
-- **Token auth vs. cookie/session:** API tokens are simpler to implement for a pure SPA and avoid CSRF complexity. The tradeoff is that tokens in `localStorage` are accessible to JavaScript (XSS risk), whereas `httpOnly` cookies are not — I'd move to Sanctum cookie-based auth in a production app.
-- **Server-side filtering vs. client-side:** All search/filter/sort is handled by the Laravel API. This is correct for a real app (scales to large datasets) but means a network request on every filter change. A debounce on the search input would reduce unnecessary requests.
-- **Deployment skipped:** Focus was on code quality and architecture; deployment is listed as an optional bonus.
+- **Token auth over cookie/session:** Simpler for a pure SPA, but tokens in `localStorage` carry XSS risk — I'd switch to `httpOnly` cookie-based Sanctum in production.
+- **Server-side filtering:** Scales better than client-side for large datasets, but fires a request on every filter change — a debounce on search would help.
+- **Deployment skipped:** Prioritized code quality and architecture over the optional deployment bonus.
 
 ## 3. What would you improve given more time?
 
-- Debounce the search input to reduce API calls while typing
-- Pagination for the project list (currently returns all records — fine for this dataset, not for thousands of projects)
-- Move Sanctum to cookie-based auth (`httpOnly`) for better XSS protection
-- Project detail/view page with full description
-- Role-based access control (e.g. admin can view all users' projects, viewer role)
+- Add pagination — currently returns all records, which doesn't scale.
+- Debounce the search input to reduce unnecessary API calls.
+- Add a project detail page with the full description and activity history.
 
 ## 4. What was the most challenging part?
 
-Implementing the Kanban drag-and-drop with a reliable optimistic update pattern. When a card is dragged to a new column, the UI needs to reflect the change immediately — waiting for the API would feel sluggish. But if the API call fails (network error, validation issue), the card has to snap back to its original column without confusing the user. Getting the revert logic right with `vue-draggable-plus` — storing the original status, catching the error, restoring the value, and showing a toast — required careful handling to avoid the UI getting out of sync with the database.
+The Kanban drag-and-drop optimistic update. When a card is dropped into a new column, the UI updates immediately — but if the API call fails, the card has to snap back to its original column without the user getting confused. Storing the previous status, catching the error, reverting the value, and showing a toast all had to happen in the right order to keep the UI in sync with the database.
 
 ## 5. AI Tools Used
 
-**Claude Code** (claude.ai/code) was used for:
-- Brainstorming and finalizing the tech stack and architecture
-- Writing the design spec and implementation plan
-- Code generation for boilerplate (migrations, form requests, API resources, Vue components)
-
-All generated code was reviewed and understood before committing. The architecture decisions, tradeoff reasoning, and implementation approach are my own.
+**Claude Code** (claude.ai/code) was used for brainstorming the architecture, writing the design spec and implementation plan, and generating boilerplate code. All output was reviewed and understood before committing — the decisions and reasoning are my own.
 ```
 
 - [ ] **Step 3: Commit**
@@ -2586,3 +2578,14 @@ Expected: `http://localhost` loads the login page. Log in with `demo@example.com
 git add -A
 git commit -m "feat: complete Client Project Tracker submission"
 ```
+
+- [ ] **Step 5: Push to GitHub and collect submission URL**
+
+Create a new public repository on GitHub (e.g. `koda-client-project-tracker`), then:
+
+```bash
+git remote add origin https://github.com/<your-username>/koda-client-project-tracker.git
+git push -u origin main
+```
+
+Copy the repository URL — this is what gets submitted as the GitHub repository link per SUBMISSION.md.
