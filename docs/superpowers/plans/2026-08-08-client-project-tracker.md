@@ -2527,7 +2527,7 @@ Laravel's opinionated structure enforces clean separation of concerns with minim
 
 ## 4. What was the most challenging part?
 
-The nginx reverse-proxy configuration was the trickiest part to get right. A single nginx server block needs to handle two fundamentally different protocols: FastCGI (for routing `/api/*` requests to `php-fpm`) and HTTP proxy with WebSocket upgrade support (for forwarding everything else to Vite's dev server, including HMR). Getting the location block precedence (`^~` for `/api`) and the `Upgrade`/`Connection` headers for Vite's HMR WebSocket correct took careful iteration.
+Implementing the Kanban drag-and-drop with a reliable optimistic update pattern. When a card is dragged to a new column, the UI needs to reflect the change immediately — waiting for the API would feel sluggish. But if the API call fails (network error, validation issue), the card has to snap back to its original column without confusing the user. Getting the revert logic right with `vue-draggable-plus` — storing the original status, catching the error, restoring the value, and showing a toast — required careful handling to avoid the UI getting out of sync with the database.
 
 ## 5. AI Tools Used
 
