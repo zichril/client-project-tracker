@@ -6,7 +6,7 @@ A fullstack Client Project Tracker built for the Koda Fullstack Developer Assess
 
 | Layer | Technology | Why |
 |-------|-----------|-----|
-| Backend | Laravel 11 (PHP 8.3) | Opinionated structure, Eloquent ORM, built-in API resources and form request validation |
+| Backend | Laravel 13 (PHP 8.3) | Opinionated structure, Eloquent ORM, built-in API resources and form request validation |
 | Frontend | Vue 3 + Vite | Composition API, Pinia state management, fast HMR |
 | Database | MySQL 8 | Relational data, enum columns for status/priority, familiar to most teams |
 | Auth | Laravel Sanctum | Lightweight API token auth, no session/cookie complexity for SPA |
